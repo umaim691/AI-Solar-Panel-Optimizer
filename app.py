@@ -101,7 +101,7 @@ Keep the explanation under 150 words.
 """
 
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-120b",
             messages=[
                 {
                     "role": "user",
