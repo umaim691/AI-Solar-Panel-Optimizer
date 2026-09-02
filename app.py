@@ -69,13 +69,19 @@ if st.button("☀️ Optimize Panel"):
     )
 
     # Groq AI explanation
-    try:
-        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+# Groq AI explanation
+st.subheader("🤖 AI Explanation")
 
-        prompt = f"""
+try:
+    api_key = st.secrets["GROQ_API_KEY"]
+
+    client = Groq(api_key=api_key)
+
+    prompt = f"""
 You are a solar energy expert.
 
 The physics-informed ML optimizer produced:
+
 Solar irradiance: {irradiance} W/m²
 Temperature: {temperature} °C
 Latitude: {latitude}°
@@ -83,26 +89,34 @@ Recommended tilt angle: {best_angle}°
 Predicted energy output: {best_energy:.2f}
 
 Explain this result in simple scientific language.
-Mention the role of panel orientation, irradiance, and temperature.
+
+Explain:
+1. Why this tilt angle was selected.
+2. How irradiance affects energy.
+3. How temperature affects solar panel performance.
+
 Keep the explanation under 150 words.
 """
 
-        response = client.chat.completions.create(
-            model=st.secrets.get("GROQ_MODEL", "llama-3.1-8b-instant"),
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=0.3
-        )
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=0.3
+    )
 
-        st.subheader("🤖 AI Explanation")
-        st.write(response.choices[0].message.content)
+    explanation = response.choices[0].message.content
 
-    except Exception as e:
-        st.info(
-            "AI explanation is unavailable. Add GROQ_API_KEY to "
-            "Streamlit Secrets to enable it."
-        )
+    st.write(explanation)
+
+except KeyError:
+    st.error(
+        "GROQ_API_KEY is not available in Streamlit Secrets."
+    )
+
+except Exception as e:
+    st.error(f"Groq error: {e}")
