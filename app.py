@@ -34,6 +34,7 @@ latitude = st.slider(
 
 if st.button("☀️ Optimize Panel"):
 
+    # 1. Test all possible tilt angles
     angles = np.arange(0, 61, 1)
 
     test_data = pd.DataFrame({
@@ -43,22 +44,24 @@ if st.button("☀️ Optimize Panel"):
         "latitude": latitude
     })
 
+    # 2. Predict energy
     predictions = model.predict(test_data)
 
+    # 3. Find best angle
     best_index = np.argmax(predictions)
 
     best_angle = int(angles[best_index])
     best_energy = float(predictions[best_index])
 
-    st.success(
-        f"Recommended Tilt: {best_angle}°"
-    )
+    # 4. Display result
+    st.success(f"Recommended Tilt: {best_angle}°")
 
     st.metric(
         "Predicted Energy",
         f"{best_energy:.2f}"
     )
 
+    # 5. Plot
     chart_df = pd.DataFrame({
         "Tilt Angle": angles,
         "Predicted Energy": predictions
@@ -68,19 +71,18 @@ if st.button("☀️ Optimize Panel"):
         chart_df.set_index("Tilt Angle")
     )
 
-    # Groq AI explanation
-# Groq AI explanation
-st.subheader("🤖 AI Explanation")
+    # 6. Groq AI explanation
+    st.subheader("🤖 AI Explanation")
 
-try:
-    api_key = st.secrets["GROQ_API_KEY"]
+    try:
+        api_key = st.secrets["GROQ_API_KEY"]
 
-    client = Groq(api_key=api_key)
+        client = Groq(api_key=api_key)
 
-    prompt = f"""
+        prompt = f"""
 You are a solar energy expert.
 
-The physics-informed ML optimizer produced:
+The physics-informed machine learning optimizer produced:
 
 Solar irradiance: {irradiance} W/m²
 Temperature: {temperature} °C
@@ -98,25 +100,25 @@ Explain:
 Keep the explanation under 150 words.
 """
 
-    response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        temperature=0.3
-    )
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.3
+        )
 
-    explanation = response.choices[0].message.content
+        explanation = response.choices[0].message.content
 
-    st.write(explanation)
+        st.write(explanation)
 
-except KeyError:
-    st.error(
-        "GROQ_API_KEY is not available in Streamlit Secrets."
-    )
+    except KeyError:
+        st.error(
+            "GROQ_API_KEY is not available in Streamlit Secrets."
+        )
 
-except Exception as e:
-    st.error(f"Groq error: {e}")
+    except Exception as e:
+        st.error(f"Groq error: {e}")
