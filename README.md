@@ -1,2 +1,2 @@
 # AI-Solar-Panel-Optimizer
-It is used to predict the best possible tilt angle for maximum energy
+Physics-informed machine learning application for solar panel tilt optimization.
